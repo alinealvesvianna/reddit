@@ -1,24 +1,56 @@
 import React, { useEffect, Fragment } from "react";
 import { connect } from "react-redux";
-import { fetchRedditInitial, fetchSeeMore } from "../actions";
+import { fetchRedditInitial, fetchSeeMore, fetchSeeHot, fetchSeeNew, fetchSeeRising } from "../actions";
 import moment from 'moment'
 import logo from '../logo.svg';
 import '../App.css';
 
 const App = (props) =>  {
 
-  const { fetchRedditInitial, news, fetchSeeMore, nextPage } = props;
+  const { 
+    fetchRedditInitial, 
+    news, 
+    fetchSeeMore, 
+    nextPage, 
+    fetchSeeHot, 
+    fetchSeeNew, 
+    fetchSeeRising,
+    typeSeeMore,
+  } = props;
 
   useEffect(() => {
     fetchRedditInitial('.json')
   }, [])
 
   const seeMore = () => {
-    fetchSeeMore(`.json?after=${nextPage}`)
+    if(typeSeeMore === ''){
+      fetchSeeMore(`.json?after=${nextPage}`)
+    } else if(typeSeeMore === 'hot'){
+      fetchSeeMore(`/hot.json?after=${nextPage}`)
+    } else if(typeSeeMore === 'new'){
+      fetchSeeMore(`/new.json?after=${nextPage}`)
+    } else if(typeSeeMore === 'rising'){
+      fetchSeeMore(`/rising.json?after=${nextPage}`)
+    }
+  }
+
+  const seeHot = () => {
+    fetchSeeHot('/hot.json', 'hot')
+  }
+
+  const seeNews = () => {
+    fetchSeeNew('/new.json', 'new')
+  }
+
+  const seeRising = () => {
+    fetchSeeRising('/rising.json', 'rising')
   }
 
   return(
     <section>
+      <button onClick={seeHot}>hot</button>
+      <button onClick={seeNews}>news</button>
+      <button onClick={seeRising}>rising</button>
       {
         news && news.map(item => {
           return(
@@ -31,7 +63,11 @@ const App = (props) =>  {
           )
         })
       }
-      <button onClick={seeMore}>see more</button>
+      {
+        nextPage !== null && (
+          <button onClick={seeMore}>see more</button>
+        )
+      }
     </section>
   )
 }
@@ -40,6 +76,7 @@ const mapStateToProps = store => ({
   news: store.news,
   isLoadingData: store.isLoadingData,
   nextPage: store.nextPage,
+  typeSeeMore: store.typeSeeMore,
 });
 
 export default connect(
@@ -47,5 +84,8 @@ export default connect(
   {
     fetchRedditInitial,
     fetchSeeMore,
+    fetchSeeHot,
+    fetchSeeNew,
+    fetchSeeRising,
   }
 )(App);
