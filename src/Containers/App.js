@@ -1,9 +1,30 @@
 import React, { useEffect, Fragment } from "react";
 import { connect } from "react-redux";
-import { fetchRedditInitial, fetchSeeMore, fetchSeeHot, fetchSeeNew, fetchSeeRising } from "../actions";
+import { 
+  fetchRedditInitial, 
+  fetchSeeMore, 
+  fetchSeeHot, 
+  fetchSeeNew, 
+  fetchSeeRising 
+} from "../actions";
 import moment from 'moment'
-import logo from '../logo.svg';
 import '../App.css';
+import { 
+  ContainerFlex, 
+  Header, 
+  Title, 
+  TitleSpan, 
+  Button, 
+  Image, 
+  ContainerText, 
+  TitleText, 
+  Text, 
+  SpanBy, 
+  SpanName, 
+  Link, 
+  ButtonSeeMore,
+  TextLoading, 
+} from './styled';
 
 const App = (props) =>  {
 
@@ -16,6 +37,7 @@ const App = (props) =>  {
     fetchSeeNew, 
     fetchSeeRising,
     typeSeeMore,
+    isLoadingData
   } = props;
 
   useEffect(() => {
@@ -47,28 +69,68 @@ const App = (props) =>  {
   }
 
   return(
-    <section>
-      <button onClick={seeHot}>hot</button>
-      <button onClick={seeNews}>news</button>
-      <button onClick={seeRising}>rising</button>
+    <Fragment>
+      <Header>
+        <Title>
+          REACT
+          <TitleSpan>JS</TitleSpan>
+        </Title>
+      </Header>
       {
-        news && news.map(item => {
-          return(
-            <div>
-              <img src={item.data.thumbnail !== "self" ? item.data.thumbnail : "https://via.placeholder.com/150"} />
-              <h3>{item.data.title}</h3>
-              <p>submitted {moment.unix(item.data.created_utc,'HH').fromNow()} by <span>{item.data.author_fullname}</span></p>
-              <a href={item.data.url}>{item.data.url}</a>
-            </div>
-          )
-        })
-      }
-      {
-        nextPage !== null && (
-          <button onClick={seeMore}>see more</button>
+        isLoadingData && (
+          <ContainerFlex flexWrap main row rowMobile justifyContent="space-between">
+            <TextLoading>Loading...</TextLoading>
+          </ContainerFlex>
         )
       }
-    </section>
+      {
+        !isLoadingData && (
+          <ContainerFlex flexWrap width="50%" margin="2em auto 0" row rowMobile justifyContent="space-between">
+            <Button 
+              background={typeSeeMore === 'hot' ? true : false} 
+              onClick={seeHot}>
+              hot
+            </Button>
+            <Button 
+              background={typeSeeMore === 'new' ? true : false} 
+              onClick={seeNews}>
+              news
+            </Button>
+            <Button 
+              background={typeSeeMore === 'rising' ? true : false} 
+              onClick={seeRising}>
+              rising
+            </Button>
+          </ContainerFlex>  
+        )
+      }
+
+        {
+          news && news.map(item => {
+            return(
+              <ContainerFlex borderTop flexWrap main margin="2em auto 0" row justifyContent="space-between">
+                <Image src={item.data.thumbnail !== "self" ? item.data.thumbnail : "https://via.placeholder.com/150"} />
+                <ContainerText>
+                  <TitleText>{item.data.title}</TitleText>
+                  <Text>
+                    submitted {moment.unix(item.data.created_utc,'HH').fromNow()} 
+                    <SpanBy> by </SpanBy> 
+                    <SpanName>{item.data.author_fullname}</SpanName>
+                  </Text>
+                  <Link href={item.data.url}>{item.data.url}</Link>
+                </ContainerText>
+              </ContainerFlex>
+            )
+          })
+        }
+        {
+          nextPage !== null && (
+            <ContainerFlex borderTop flexWrap main margin="2em auto" row justifyContent="space-between">
+              <ButtonSeeMore onClick={seeMore}> + see more</ButtonSeeMore>
+            </ContainerFlex>
+          )
+        }
+    </Fragment>
   )
 }
 
@@ -77,6 +139,7 @@ const mapStateToProps = store => ({
   isLoadingData: store.isLoadingData,
   nextPage: store.nextPage,
   typeSeeMore: store.typeSeeMore,
+  isLoadingData: store.isLoadingData,
 });
 
 export default connect(
